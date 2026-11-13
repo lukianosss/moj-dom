@@ -1,0 +1,8 @@
+import {fetchEnergaUsage} from './energa-adapter.js';
+const demo=[12.4,16.8,14.1,19.2,17.5,22.1,18.4];
+const labels=['Pn','Wt','Śr','Cz','Pt','Sb','Nd'];
+const chart=document.getElementById('chart');
+function render(data){chart.replaceChildren();const max=Math.max(...data,1);data.forEach((v,i)=>{const col=document.createElement('div');col.className='barcol';const value=document.createElement('small');value.textContent=v.toLocaleString('pl-PL',{maximumFractionDigits:1});const bar=document.createElement('div');bar.className='bar';bar.style.height=`${Math.max(4,v/max*135)}px`;const day=document.createElement('span');day.textContent=labels[i];col.append(value,bar,day);chart.append(col)});document.getElementById('today').textContent=data.at(-1).toLocaleString('pl-PL',{maximumFractionDigits:1});document.getElementById('cost').textContent=(data.at(-1)*1.2).toLocaleString('pl-PL',{style:'currency',currency:'PLN'});}
+render(demo);
+document.getElementById('refresh').addEventListener('click',async()=>{const button=document.getElementById('refresh');button.disabled=true;document.getElementById('last').textContent=new Date().toLocaleString('pl-PL');try{await fetchEnergaUsage();document.getElementById('connection').textContent='Weryfikacja integracji wymagana';}catch(e){document.getElementById('connection').textContent='Niepodłączono';document.getElementById('status').textContent='TRYB DEMO — nie pobrano rzeczywistych danych. '+e.message;}finally{button.disabled=false;}});
+if('serviceWorker'in navigator && location.protocol!=='file:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
